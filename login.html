@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>Login — ISAM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="Java/authenguard.js"></script>
+</head>
+<body>
+
+<!-- Background decorations -->
+<div class="bg-grid"></div>
+<div class="bg-pattern"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOGIN CARD
+     ══════════════════════════════════════════════════════════ -->
+<div class="login-wrap">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="lp-logo">
+      <div class="lp-logo-mark">
+        <!-- LOGO PLACEHOLDER: ganti dengan <img src="logo.png"> atau SVG aslimu -->
+        <svg viewBox="0 0 24 24">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="lp-logo-title">ISAM</div>
+        <div class="lp-logo-sub">v1.0 · BIB Mining Project</div>
+      </div>
+    </div>
+
+    <div class="lp-center">
+      <div class="lp-headline">Inspection &amp; Safety Asset Management</div>
+      <div class="lp-desc">
+        Platform digital untuk monitoring inspeksi alat, manajemen temuan, dan tindak lanjut
+        sarana prasarana tambang — KGB &amp; GRB.
+      </div>
+      <div class="lp-features">
+        <div class="lp-feat">
+          <div class="lp-feat-icon">📋</div>
+          <div class="lp-feat-text">Form inspeksi digital — 12 jenis alat</div>
+        </div>
+        <div class="lp-feat">
+          <div class="lp-feat-icon">📊</div>
+          <div class="lp-feat-text">Dashboard real-time per area &amp; PIC</div>
+        </div>
+        <div class="lp-feat">
+          <div class="lp-feat-icon">🔔</div>
+          <div class="lp-feat-text">Notifikasi otomatis temuan &amp; overdue</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-bottom">DIV ASSET MANAGEMENT · BIB Mining</div>
+  </div><!-- /left-panel -->
+
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="rp-heading">Selamat datang 👋</div>
+    <div class="rp-sub">Pilih role dan masukkan credential Anda</div>
+
+    <!-- Role Selector -->
+    <div class="role-grid">
+
+      <!-- Form Inspeksi: redirect langsung tanpa login -->
+      <a class="role-opt role-opt-link" href="https://dimayy17.github.io/inspeksi-alat/" target="_blank" rel="noopener">
+        <div class="role-icon" style="background:#eff6ff">📋</div>
+        <div>
+          <div style="font-size:12.5px;font-weight:600">Form Inspeksi</div>
+          <div style="font-size:10.5px;color:var(--text3);margin-top:1px">Tanpa login</div>
+        </div>
+        <div class="role-ext">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        </div>
+      </a>
+
+      <div class="role-opt">
+        <input type="radio" name="role" id="role-pic" value="pic" />
+        <label for="role-pic">
+          <div class="role-icon" style="background:#f0fdf4">🛠</div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600">PIC Area</div>
+            <div style="font-size:10.5px;color:var(--text3);margin-top:1px">Tindak lanjut</div>
+          </div>
+          <div class="role-check"></div>
+        </label>
+      </div>
+
+      <div class="role-opt">
+        <input type="radio" name="role" id="role-viewer" value="viewer" />
+        <label for="role-viewer">
+          <div class="role-icon" style="background:#f5f3ff">👁</div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600">Viewer</div>
+            <div style="font-size:10.5px;color:var(--text3);margin-top:1px">Lihat laporan &amp; dashboard</div>
+          </div>
+          <div class="role-check"></div>
+        </label>
+      </div>
+
+      <div class="role-opt">
+        <input type="radio" name="role" id="role-admin" value="admin" />
+        <label for="role-admin">
+          <div class="role-icon" style="background:#fef2f2">⚙️</div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600">Administrator</div>
+            <div style="font-size:10.5px;color:var(--text3);margin-top:1px">Kelola sistem</div>
+          </div>
+          <div class="role-check"></div>
+        </label>
+      </div>
+
+    </div><!-- /role-grid -->
+
+    <!-- Error Alert -->
+    <div class="alert-error" id="alert-error">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span id="alert-msg">Username, password, atau role tidak sesuai. Coba lagi.</span>
+    </div>
+
+    <!-- Email -->
+    <div class="field">
+      <label class="lbl" for="inp-email">Email</label>
+      <div class="input-wrap">
+        <div class="input-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <input
+          type="email"
+          id="inp-email"
+          placeholder="email@perusahaan.com"
+          autocomplete="email"
+          inputmode="email"
+          oninput="clearFieldError('inp-email','err-username')"
+        />
+      </div>
+      <div class="err-msg" id="err-username">Email tidak boleh kosong.</div>
+    </div>
+
+    <!-- Password -->
+    <div class="field">
+      <label class="lbl" for="inp-password">Password</label>
+      <div class="input-wrap">
+        <div class="input-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <input
+          type="password"
+          id="inp-password"
+          placeholder="Masukkan password…"
+          autocomplete="current-password"
+          oninput="clearFieldError('inp-password','err-password')"
+        />
+        <div class="pw-toggle" onclick="togglePw()" title="Tampilkan password" role="button" aria-label="Toggle password">
+          <span id="pw-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="err-msg" id="err-password">Password tidak boleh kosong.</div>
+    </div>
+
+    <!-- Remember & Forgot -->
+    <div class="options-row">
+      <label class="remember-wrap">
+        <input type="checkbox" id="remember-me" />
+        <div class="cb-box"></div>
+        <span class="remember-lbl">Ingat saya</span>
+      </label>
+      <a class="forgot-link" onclick="showToast('Hubungi admin untuk reset password 📧')">Lupa password?</a>
+    </div>
+
+    <!-- Login Button -->
+    <button class="login-btn" id="login-btn" onclick="doLogin()">
+      <span class="btn-spinner"></span>
+      <span class="btn-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Masuk ke Dashboard
+      </span>
+    </button>
+
+    <!-- Network status hint -->
+    <div id="network-hint" style="display:none;text-align:center;margin-top:12px;font-size:12px;color:var(--text3)">
+      ⏳ Menghubungi server…
+    </div>
+
+  </div><!-- /right-panel -->
+</div><!-- /login-wrap -->
+
+<!-- Footer -->
+<div class="login-footer">
+  ISAM v1.0 · DIV ASSET MANAGEMENT · BIB Mining Project
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast-el"><span id="toast-txt"></span></div>
+
+<!-- Script di bawah body agar DOM siap -->
+<script src="Java/login.js"></script>
+</body>
+</html>

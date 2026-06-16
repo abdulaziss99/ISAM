@@ -1,28 +1,14 @@
 /* ============================================================
    ISAM — login.js
    Koneksi ke Google Apps Script → MASTER_EMPLOYEE
-   Versi : 2.0
+   Versi : 3.0 — auth via doPost (password tidak lewat GET)
    ============================================================ */
 
 'use strict';
 
 // ── KONFIGURASI ──────────────────────────────────────────────
-var API_URL = 'https://script.google.com/macros/s/AKfycbyj_4pc-IxMd3VEt45l-ycdvqeiEdCia7wl6W-1oc6cnmZDdjeS-9x10gnQ6SUZfv7j/exec';
-
-/**
- * Map nilai role di sheet → value radio button di form
- * Role "Inspektor" TIDAK login — diarahkan ke form eksternal via tombol.
- */
-var ROLE_MAP = {
-  'administrator' : 'admin',
-  'admin'         : 'admin',
-  'pic'           : 'pic',
-  'pic area'      : 'pic',
-  'viewer'        : 'viewer',
-  'safety captain': 'viewer',
-  'captain'       : 'viewer',
-  'lead ssb'      : 'viewer',
-};
+// Ganti URL ini setelah re-deploy GAS sebagai Web App
+var API_URL = 'https://script.google.com/macros/s/AKfycbwPmThYgP9WSxLE8RFmSfNxsVYmdsSLmm6oRNGP42ArVVIpLs914jam3QydYHHxwc0vsA/exec';
 
 /** Role → halaman dashboard tujuan */
 var DASHBOARD = {
@@ -51,13 +37,8 @@ var DASHBOARD = {
 
 
 /* ============================================================
-   FETCH HELPER
+   FETCH HELPER — GET (untuk lookup map saja)
    ============================================================ */
-/**
- * Fetch data dari Apps Script.
- * @param {string} sheetName
- * @returns {Promise<Array>}
- */
 function fetchSheet(sheetName) {
   var url = API_URL + '?sheet=' + encodeURIComponent(sheetName);
   return fetch(url)
@@ -66,49 +47,28 @@ function fetchSheet(sheetName) {
       return res.json();
     })
     .then(function (json) {
+      if (!json.success) throw new Error(json.message || 'Gagal membaca data.');
       return json.data || [];
     });
 }
 
-/**
- * Fetch MASTER_AREA → Map { 'AR001': 'KGB', 'AR002': 'GRB', … }
- * @returns {Promise<Object>}
- */
-function fetchAreaMap() {
-  return fetchSheet('MASTER_AREA').then(function (rows) {
-    var map = {};
-    rows.forEach(function (r) {
-      var keys = Object.keys(r);
-      if (keys.length < 2) return;
-      var kode = String(r[keys[0]] || '').trim().toUpperCase();
-      var nama = String(r[keys[1]] || '').trim();
-      if (kode) map[kode] = nama;
-    });
-    return map;
-  });
-}
 
-/**
- * Fetch & normalise MASTER_EMPLOYEE.
- * @returns {Promise<Array>}
- */
-function fetchEmployees() {
-  return fetchSheet('MASTER_EMPLOYEE').then(function (rows) {
-    return rows
-      .filter(function (r) { return r['email']; })
-      .map(function (r) {
-        var rawRole    = String(r['role']     || '').trim().toLowerCase();
-        var mappedRole = ROLE_MAP[rawRole]   || rawRole;
-        return {
-          email    : String(r['email']    || '').trim().toLowerCase(),
-          password : String(r['Sandi_id'] || '').trim(),
-          role     : mappedRole,
-          nama     : String(r['nama']     || '').trim(),
-          area_id  : String(r['area_id']  || '').trim().toUpperCase(),
-          jabatan  : String(r['jabatan']  || '').trim(),
-        };
-      });
-  });
+/* ============================================================
+   POST HELPER — Auth via doPost (aman, password tidak di URL)
+   ============================================================ */
+function postLogin(email, password, role) {
+  return fetch(API_URL, {
+    method      : 'POST',
+    // GAS doPost tidak mendukung Content-Type application/json langsung
+    // dari cross-origin, jadi kita kirim sebagai text/plain
+    headers     : { 'Content-Type': 'text/plain;charset=utf-8' },
+    body        : JSON.stringify({ email: email, password: password, role: role }),
+    redirect    : 'follow',
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Server error: ' + res.status);
+      return res.json();
+    });
 }
 
 
@@ -141,7 +101,7 @@ function clearFieldError(inputId, errId) {
 }
 
 function setLoading(on) {
-  var btn = document.getElementById('login-btn');
+  var btn  = document.getElementById('login-btn');
   var hint = document.getElementById('network-hint');
   if (!btn) return;
   if (on) {
@@ -171,18 +131,17 @@ function togglePw() {
 
 
 /* ============================================================
-   MAIN LOGIN
+   MAIN LOGIN — pakai doPost
    ============================================================ */
 function doLogin() {
-  /* Ambil nilai form */
-  var emailInput = (document.getElementById('inp-email').value   || '').trim().toLowerCase();
-  var pwInput    = (document.getElementById('inp-password').value || '').trim();
+  // Ambil nilai form
+  var emailInput = (document.getElementById('inp-email').value    || '').trim().toLowerCase();
+  var pwInput    = (document.getElementById('inp-password').value  || '').trim();
   var roleEl     = document.querySelector('input[name="role"]:checked');
   var roleInput  = roleEl ? roleEl.value : '';
 
-  /* Validasi field kosong */
+  // Validasi kosong
   var hasErr = false;
-
   if (!emailInput) {
     document.getElementById('inp-email').classList.add('error');
     document.getElementById('err-username').classList.add('show');
@@ -201,63 +160,44 @@ function doLogin() {
 
   setLoading(true);
 
-  /* Fetch paralel */
-  Promise.all([fetchEmployees(), fetchAreaMap()])
-    .then(function (results) {
-      var employees = results[0];
-      var areaMap   = results[1];
-
-      /* Cari user yang cocok */
-      var user = null;
-      for (var i = 0; i < employees.length; i++) {
-        var e = employees[i];
-        if (e.email === emailInput && e.password === pwInput && e.role === roleInput) {
-          user = e;
-          break;
-        }
-      }
-
-      if (!user) {
-        /* Feedback spesifik */
-        var emailExists = employees.some(function (e) { return e.email === emailInput; });
-        var roleMatch   = employees.some(function (e) { return e.email === emailInput && e.role === roleInput; });
-
-        if (!emailExists) {
-          showAlert('Email tidak terdaftar di sistem.');
-        } else if (!roleMatch) {
-          showAlert('Role yang dipilih tidak sesuai dengan akun ini.');
-        } else {
-          showAlert('Password salah. Silakan coba lagi.');
-        }
-
+  // Kirim ke GAS via POST — GAS yang verifikasi & catat last_login
+  postLogin(emailInput, pwInput, roleInput)
+    .then(function (json) {
+      if (!json.success) {
+        showAlert(json.message || 'Login gagal. Periksa kembali credential Anda.');
         document.getElementById('inp-email').classList.add('error');
         document.getElementById('inp-password').classList.add('error');
         return;
       }
 
-      /* Resolve nama area */
-      var namaArea = areaMap[user.area_id] || user.area_id || '-';
+      var user = json.user;
 
-      /* Simpan sesi */
+      // Simpan sesi
       var remember = document.getElementById('remember-me').checked;
       var storage  = remember ? localStorage : sessionStorage;
       storage.setItem('isam_user', JSON.stringify({
-        email     : user.email,
-        nama      : user.nama,
-        role      : user.role,
-        jabatan   : user.jabatan,
-        area_id   : user.area_id,
-        area_nama : namaArea,
+        employee_id  : user.employee_id,
+        email        : user.email,
+        nama         : user.nama,
+        role         : user.role,
+        jabatan      : user.jabatan,
+        company_id   : user.company_id,
+        company_nama : user.company_nama,
+        area_id      : user.area_id,
+        area_nama    : user.area_nama,
+        subarea_id   : user.subarea_id,
+        subarea_nama : user.subarea_nama,
+        last_login   : user.last_login,
       }));
 
-      /* Redirect */
+      // Redirect berdasarkan role
       var target = DASHBOARD[user.role];
       if (!target) {
         showAlert('Role "' + user.role + '" tidak memiliki dashboard yang terdaftar.');
         return;
       }
 
-      showToast('✅ Selamat datang, ' + (user.nama || user.email) + '! (' + namaArea + ')');
+      showToast('✅ Selamat datang, ' + (user.nama || user.email) + '! (' + user.area_nama + ')');
       setTimeout(function () { window.location.href = target; }, 900);
     })
     .catch(function (err) {
@@ -282,7 +222,7 @@ document.addEventListener('keydown', function (e) {
 
 
 /* ============================================================
-   DEMO FILL (untuk testing — bisa dihapus di produksi)
+   DEMO FILL (untuk testing — hapus di produksi)
    ============================================================ */
 function fillDemo(email, password, role) {
   document.getElementById('inp-email').value    = email;

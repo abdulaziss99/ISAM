@@ -499,3 +499,137 @@ body{
   .left-panel{background:linear-gradient(145deg,#1e3a8a,#1e40af,#4c1d95);}
 }
 */
+
+
+/* ============================================================
+   TAMBAHAN v3 — No role selector, simple form
+   ============================================================ */
+
+/* Subtitle lebih kecil */
+.rp-sub {
+  font-size: 12.5px;
+  color: var(--text3);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* ── OR DIVIDER ── */
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+  color: var(--text3);
+  font-size: 12px;
+}
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ── FORM INSPEKSI LINK ── */
+.inspeksi-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--line2);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all .15s;
+  cursor: pointer;
+}
+.inspeksi-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-lt);
+}
+
+/* ── ROLE INFO CARDS ── */
+.role-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.ri-card {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px 8px;
+  text-align: center;
+  transition: all .13s;
+}
+
+.ri-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-lt);
+}
+
+.ri-icon { font-size: 20px; margin-bottom: 5px; }
+.ri-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.ri-desc { font-size: 10px; color: var(--text3); line-height: 1.4; }
+
+/* Override field margin — lebih compact tanpa role grid */
+.field { margin-bottom: 14px; }
+.field:last-of-type { margin-bottom: 20px; }
+
+/* ── RESPONSIVE OVERRIDE v3 ── */
+@media (max-width: 480px) {
+  .role-info-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .ri-icon  { font-size: 17px; }
+  .ri-name  { font-size: 11px; }
+  .ri-desc  { font-size: 9.5px; }
+  .ri-card  { padding: 10px 6px; }
+}
+
+@media (max-width: 360px) {
+  .role-info-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ── COMPANY LOGOS (left panel) ── */
+.lp-logos {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.lp-logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  /* Biar terlihat di background gelap */
+  background: rgba(255,255,255,.92);
+  border-radius: 8px;
+  padding: 5px 8px;
+  flex-shrink: 0;
+}
+
+.lp-logo-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255,255,255,.25);
+  flex-shrink: 0;
+}
+
+/* Mobile: logo lebih kecil */
+@media (max-width: 480px) {
+  .lp-logos { gap: 10px; margin-bottom: 0; }
+  .lp-logo-img { height: 30px; padding: 4px 6px; border-radius: 6px; }
+  .lp-logo-divider { height: 24px; }
+}
